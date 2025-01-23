@@ -1,38 +1,60 @@
-// create web server
-// create a route for comments
-// create a route for adding comments
-// create a route for deleting comments
-// create a route for updating comments
+// Create web server
+// Define port
+const port = 3000;
 
+// Import express
 const express = require('express');
 const app = express();
-const comments = require('./comments');
-const bodyParser = require('body-parser');
 
+// Import body-parser
+const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
+// Import comments.js
+const comments = require('./comments.js');
+
+// Get all comments
 app.get('/comments', (req, res) => {
-    res.json(comments);
+  res.json(comments.getComments());
 });
 
+// Get comment by id
+app.get('/comments/:id', (req, res) => {
+  let comment = comments.getComment(req.params.id);
+  if (comment) {
+    res.json(comment);
+  } else {
+    res.status(404).send('Comment not found');
+  }
+});
+
+// Create a comment
 app.post('/comments', (req, res) => {
-    const comment = req.body.comment;
-    comments.push(comment);
-    res.json(comments);
+  let comment = comments.createComment(req.body);
+  res.json(comment);
 });
 
-app.delete('/comments/:id', (req, res) => {
-    const id = req.params.id;
-    comments.splice(id, 1);
-    res.json(comments);
-});
-
+// Update a comment
 app.put('/comments/:id', (req, res) => {
-    const id = req.params.id;
-    comments[id] = req.body.comment;
-    res.json(comments);
+  let comment = comments.updateComment(req.params.id, req.body);
+  if (comment) {
+    res.json(comment);
+  } else {
+    res.status(404).send('Comment not found');
+  }
 });
 
-app.listen(3000, () => {
-    console.log('Server is running');
+// Delete a comment
+app.delete('/comments/:id', (req, res) => {
+  let comment = comments.deleteComment(req.params.id);
+  if (comment) {
+    res.json(comment);
+  } else {
+    res.status(404).send('Comment not found');
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log('Server is running on port', port);
 });
